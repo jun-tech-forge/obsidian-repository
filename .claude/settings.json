@@ -1,0 +1,8 @@
+{
+  "model": "sonnet",
+  "effortLevel": "high",
+  "outputStyle": "Default",
+  "alwaysThinkingEnabled": true,
+  "enableAllProjectMcpServers": false,
+  "enabledMcpjsonServers": ["anki"]
+}
