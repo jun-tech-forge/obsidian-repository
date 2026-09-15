@@ -64,7 +64,7 @@ Path-specific rulesを適用するため、指定されたSourceノートはClau
 ファイル操作完了後は、簡潔な実行結果のみを返す。
 "@
 
-& claude -p $Prompt `
+$ClaudeOutput = & claude -p $Prompt `
     --output-format json `
     --system-prompt $SystemPrompt `
     --permission-mode dontAsk `
@@ -73,4 +73,24 @@ Path-specific rulesを適用するため、指定されたSourceノートはClau
     --allowedTools "Read" "Write" "Glob" "Grep" "Skill(create-cards *)" `
     --disallowedTools "Edit" "Bash" "mcp__*"
 
-exit $LASTEXITCODE
+$ClaudeExitCode = $LASTEXITCODE
+$ClaudeOutputText = if ($null -eq $ClaudeOutput) { "" } else { ($ClaudeOutput | Out-String).TrimEnd() }
+
+try {
+    $Result = $ClaudeOutputText | ConvertFrom-Json
+}
+catch {
+    Write-Error "Failed to parse Claude Code JSON output."
+    if ($ClaudeOutputText -ne "") {
+        Write-Host $ClaudeOutputText
+    }
+    exit 1
+}
+
+if ($Result.is_error) {
+    Write-Error $Result.result
+    exit 1
+}
+
+Write-Host $Result.result
+exit $ClaudeExitCode

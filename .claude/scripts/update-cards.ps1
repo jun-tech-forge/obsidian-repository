@@ -39,7 +39,7 @@ Ankiへの同期が成功した場合は `status` を `registered` とする。�
 "@
 
 if ($SyncAnki) {
-    & claude -p $Prompt `
+    $ClaudeOutput = & claude -p $Prompt `
         --output-format json `
         --system-prompt $SystemPrompt `
         --permission-mode dontAsk `
@@ -52,7 +52,7 @@ if ($SyncAnki) {
             "mcp__anki__update_model_templates" "mcp__anki__update_model_styling"
 }
 else {
-    & claude -p $Prompt `
+    $ClaudeOutput = & claude -p $Prompt `
         --output-format json `
         --system-prompt $SystemPrompt `
         --permission-mode dontAsk `
@@ -62,4 +62,24 @@ else {
         --disallowedTools "Write" "Bash" "mcp__*"
 }
 
-exit $LASTEXITCODE
+$ClaudeExitCode = $LASTEXITCODE
+$ClaudeOutputText = if ($null -eq $ClaudeOutput) { "" } else { ($ClaudeOutput | Out-String).TrimEnd() }
+
+try {
+    $Result = $ClaudeOutputText | ConvertFrom-Json
+}
+catch {
+    Write-Error "Failed to parse Claude Code JSON output."
+    if ($ClaudeOutputText -ne "") {
+        Write-Host $ClaudeOutputText
+    }
+    exit 1
+}
+
+if ($Result.is_error) {
+    Write-Error $Result.result
+    exit 1
+}
+
+Write-Host $Result.result
+exit $ClaudeExitCode
