@@ -45,7 +45,7 @@ Ankiへの新規登録は、許可されたAnkiMCPの追加用Toolだけを使�
 処理完了後は、ローカルIDごとに、登録成功、登録済みのため対象外、重複によるスキップ、登録失敗を区別して簡潔に返す。
 "@
 
-& claude -p $Prompt `
+$ClaudeOutput = & claude -p $Prompt `
     --output-format json `
     --system-prompt $SystemPrompt `
     --permission-mode dontAsk `
@@ -58,4 +58,24 @@ Ankiへの新規登録は、許可されたAnkiMCPの追加用Toolだけを使�
         "mcp__anki__update_notes" "mcp__anki__delete_notes" "mcp__anki__change_note_type" "mcp__anki__model_fields" `
         "mcp__anki__create_model" "mcp__anki__update_model_templates" "mcp__anki__update_model_styling"
 
-exit $LASTEXITCODE
+$ClaudeExitCode = $LASTEXITCODE
+$ClaudeOutputText = if ($null -eq $ClaudeOutput) { "" } else { ($ClaudeOutput | Out-String).TrimEnd() }
+
+try {
+    $Result = $ClaudeOutputText | ConvertFrom-Json
+}
+catch {
+    Write-Error "Failed to parse Claude Code JSON output."
+    if ($ClaudeOutputText -ne "") {
+        Write-Host $ClaudeOutputText
+    }
+    exit 1
+}
+
+if ($Result.is_error) {
+    Write-Error $Result.result
+    exit 1
+}
+
+Write-Host $Result.result
+exit $ClaudeExitCode

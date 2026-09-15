@@ -33,7 +33,7 @@ Ankiノートの追加・更新を行わない。`note_type` を変更しない�
 処理完了後は、各削除対象についてAnkiノートとローカル問題カードの削除結果を簡潔に返す。
 "@
 
-& claude -p $Prompt `
+$ClaudeOutput = & claude -p $Prompt `
     --output-format json `
     --system-prompt $SystemPrompt `
     --permission-mode dontAsk `
@@ -45,4 +45,24 @@ Ankiノートの追加・更新を行わない。`note_type` を変更しない�
         "mcp__anki__update_notes" "mcp__anki__tag_management" "mcp__anki__create_deck" "mcp__anki__change_note_type" `
         "mcp__anki__model_fields" "mcp__anki__create_model" "mcp__anki__update_model_templates" "mcp__anki__update_model_styling"
 
-exit $LASTEXITCODE
+$ClaudeExitCode = $LASTEXITCODE
+$ClaudeOutputText = if ($null -eq $ClaudeOutput) { "" } else { ($ClaudeOutput | Out-String).TrimEnd() }
+
+try {
+    $Result = $ClaudeOutputText | ConvertFrom-Json
+}
+catch {
+    Write-Error "Failed to parse Claude Code JSON output."
+    if ($ClaudeOutputText -ne "") {
+        Write-Host $ClaudeOutputText
+    }
+    exit 1
+}
+
+if ($Result.is_error) {
+    Write-Error $Result.result
+    exit 1
+}
+
+Write-Host $Result.result
+exit $ClaudeExitCode
