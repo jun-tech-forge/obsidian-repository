@@ -27,13 +27,23 @@ SourceノートをReadで読み込み、適用されるPath-specific rulesにも
 
 ## Preconditions
 
-カード作成前に、次の条件をすべて確認する。
+PowerShellスクリプト側で、次の条件は検証済みである前提で処理する。
 
 - `source` が `notes/` 配下に存在するMarkdownファイルである
 - `tag` が `cards/` 配下に存在するディレクトリである
+
+このSkillでは、主に `deck` と `tag` の整合を確認する。
+
 - `deck` が `tag` の `cards/` 直下第1セグメントと一致する
 
 条件を満たさない場合はカードを作成せず、問題を報告して終了する。
+
+## Existing Cards
+
+`tag` 配下の既存問題カード確認では、GlobおよびGrepの結果が0件でも、`tag` ディレクトリが存在しないとは判断しない。
+
+- 0件の場合は、既存カードが存在しないものとして扱う
+- `tag` ディレクトリの存在可否はPowerShellスクリプト側の事前検証結果を前提とする
 
 ## Workflow
 

@@ -12,6 +12,47 @@ $ErrorActionPreference = "Stop"
 $ProjectRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
 Set-Location $ProjectRoot
 
+$NotesRoot = (Resolve-Path (Join-Path $ProjectRoot "notes")).Path
+$CardsRoot = (Resolve-Path (Join-Path $ProjectRoot "cards")).Path
+
+$ResolvedSource = $null
+if (Test-Path -LiteralPath $Source -PathType Leaf) {
+    $ResolvedSource = (Resolve-Path -LiteralPath $Source).Path
+}
+
+if (-not $ResolvedSource) {
+    Write-Error "Source file not found: $Source"
+    exit 1
+}
+
+if ([System.IO.Path]::GetExtension($ResolvedSource) -ne ".md") {
+    Write-Error "Source must be a Markdown file: $Source"
+    exit 1
+}
+
+if (-not $ResolvedSource.StartsWith($NotesRoot + [System.IO.Path]::DirectorySeparatorChar, [System.StringComparison]::OrdinalIgnoreCase)) {
+    Write-Error "Source must be under notes/: $Source"
+    exit 1
+}
+
+$ResolvedTagPath = $null
+if (Test-Path -LiteralPath $TagPath -PathType Container) {
+    $ResolvedTagPath = (Resolve-Path -LiteralPath $TagPath).Path
+}
+
+if (-not $ResolvedTagPath) {
+    Write-Error "TagPath directory not found: $TagPath"
+    exit 1
+}
+
+if (
+    $ResolvedTagPath -ne $CardsRoot -and
+    -not $ResolvedTagPath.StartsWith($CardsRoot + [System.IO.Path]::DirectorySeparatorChar, [System.StringComparison]::OrdinalIgnoreCase)
+) {
+    Write-Error "TagPath must be under cards/: $TagPath"
+    exit 1
+}
+
 $Prompt = "/create-cards source=`"$Source`" deck=`"$Deck`" tag=`"$TagPath`" count=$Count"
 $SystemPrompt = @"
 この実行では、本プロジェクトの問題作成タスクのみを実行する。
