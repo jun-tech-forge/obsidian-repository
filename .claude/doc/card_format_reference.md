@@ -152,7 +152,7 @@ Clozeで使用する。
 
 - `text` は文脈自体に学習価値がある場合に用いる。
 - `back_extra` は補足説明に用いる。
-- Anki登録時に `text` → `Text` または `テキスト`、`back_extra` → `Back Extra` または `裏面補足` へ変換する。
+- Anki登録時に `text` → `Text` または `テキスト`、`back_extra` → `Back Extra` または `裏面追記` へ変換する。
 
 ---
 
@@ -192,4 +192,4 @@ Clozeで使用する。
 - Clozeでは `text` と `back_extra` が存在し、少なくとも1個、最大3個のCloze削除がある。
 - 同一登録バッチ内でBasicの `front` またはClozeの `text` が重複しない。
 - 文字数目安を超えた場合は警告し、著しく長い場合は登録を中止する。
-- 対象カードに必要な論理 `note_type` について、対応する標準ノートタイプがAnki上に存在し、その実フィールド構成が `Front` / `Back`、`表面` / `裏面`、`Text` / `Back Extra`、`テキスト` / `裏面補足` のいずれかの想定どおりであることを `model_names` と `model_field_names` で確認する。類似名は一致扱いしない。
+- 対象カードに必要な論理 `note_type` について、対応する標準ノートタイプがAnki上に存在し、その実フィールド構成が `Front` / `Back`、`表面` / `裏面`、`Text` / `Back Extra`、`テキスト` / `裏面追記` のいずれかの想定どおりであることを `model_names` と `model_field_names` で確認する。類似名は一致扱いしない。

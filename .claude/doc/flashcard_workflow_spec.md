@@ -326,7 +326,7 @@ Basicでは、Anki上で標準フィールドの次のいずれか2項目を使�
 Clozeでは、Anki上で標準フィールドの次のいずれか2項目を使用する。
 
 - `Text` / `Back Extra`
-- `テキスト` / `裏面補足`
+- `テキスト` / `裏面追記`
 
 分野・難易度・優先度はAnkiのネイティブタグとして登録する。
 
@@ -491,7 +491,7 @@ source: notes/books/example.md
 ---
 ```
 
-Clozeは、文脈を残したまま一部を穴埋めにする形式とし、Anki登録時には `text` を標準フィールドの `Text` または `テキスト`、`back_extra` を標準フィールドの `Back Extra` または `裏面補足` へ対応させる。
+Clozeは、文脈を残したまま一部を穴埋めにする形式とし、Anki登録時には `text` を標準フィールドの `Text` または `テキスト`、`back_extra` を標準フィールドの `Back Extra` または `裏面追記` へ対応させる。
 
 ```text
 ---
@@ -634,7 +634,7 @@ back_extra: |-
   補足: 思考の内容を消すのではなく思考との関係を変えることを重視する。
 ```
 
-Anki登録時には、`back_extra` をClozeの実フィールド名 `Back Extra` または `裏面補足` へ登録する。
+Anki登録時には、`back_extra` をClozeの実フィールド名 `Back Extra` または `裏面追記` へ登録する。
 
 ### 5.9 タグ
 
@@ -942,7 +942,7 @@ Ankiへの書き込みを開始する前に、対象問題をすべて検証す�
 - 登録先デッキがAnkiに存在すること
 - 対象カードに含まれる論理 `note_type` に対応する標準ノートタイプがAnkiに一意に存在すること
 - Basic系では、その実フィールドが `Front` / `Back` または `表面` / `裏面` であること
-- Cloze系では、その実フィールドが `Text` / `Back Extra` または `テキスト` / `裏面補足` であること
+- Cloze系では、その実フィールドが `Text` / `Back Extra` または `テキスト` / `裏面追記` であること
 - `Basic` / `基本`、`Cloze` / `穴埋め問題` 以外の類似名を推測で採用しないこと
 
 ### 9.5 AnkiMCP入力への変換とバッチ分割
@@ -960,7 +960,7 @@ Clozeでは次の対応とする。
 
 - 実ノートタイプ名: `Cloze` または `穴埋め問題`
 - `text` → `Text` または `テキスト`
-- `back_extra` → `Back Extra` または `裏面補足`
+- `back_extra` → `Back Extra` または `裏面追記`
 - `tags` → Ankiネイティブタグ
 
 `id`, `anki_note_id`, `status`, `note_type`, `source` はAnkiのフィールドへ渡さない。
