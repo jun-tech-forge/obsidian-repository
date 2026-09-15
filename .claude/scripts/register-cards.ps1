@@ -9,6 +9,29 @@ $ErrorActionPreference = "Stop"
 $ProjectRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
 Set-Location $ProjectRoot
 
+$CardsRoot = (Resolve-Path (Join-Path $ProjectRoot "cards")).Path
+
+$ResolvedCardPath = $null
+if (Test-Path -LiteralPath $CardPath -PathType Leaf) {
+    $ResolvedCardPath = (Resolve-Path -LiteralPath $CardPath).Path
+}
+elseif (Test-Path -LiteralPath $CardPath -PathType Container) {
+    $ResolvedCardPath = (Resolve-Path -LiteralPath $CardPath).Path
+}
+
+if (-not $ResolvedCardPath) {
+    Write-Error "CardPath not found: $CardPath"
+    exit 1
+}
+
+if (
+    $ResolvedCardPath -ne $CardsRoot -and
+    -not $ResolvedCardPath.StartsWith($CardsRoot + [System.IO.Path]::DirectorySeparatorChar, [System.StringComparison]::OrdinalIgnoreCase)
+) {
+    Write-Error "CardPath must be under cards/: $CardPath"
+    exit 1
+}
+
 $Prompt = "/register-cards path=`"$CardPath`" deck=`"$Deck`""
 $SystemPrompt = @"
 この実行では、本プロジェクトの問題登録タスクのみを実行する。

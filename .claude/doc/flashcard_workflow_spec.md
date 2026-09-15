@@ -868,6 +868,8 @@ Claude Codeでは `text`, `json`, `stream-json` を指定できる。本シス�
 
 `-Source` はSourceノート、`-Deck` は登録予定デッキ、`-TagPath` は保存先、`-Count` は生成件数の上限目安を表す。
 
+`create-cards.ps1` はClaude Code起動前に、PowerShellの `Test-Path` で `Source` が `notes/` 配下の実在するMarkdownファイルであること、および `TagPath` が `cards/` 配下の実在するディレクトリであることを確認する。`TagPath` は空ディレクトリでも存在していれば有効とし、条件を満たさない場合はClaude Codeを起動せず終了する。
+
 ### 8.8 処理シーケンス
 
 ```mermaid
@@ -1008,6 +1010,8 @@ AnkiMCPから `status: "skipped"` または `status: "failed"` が返った場�
 ```
 
 `-CardPath` は登録対象の問題カードまたはディレクトリ、`-Deck` は登録先のAnkiデッキを表す。
+
+`register-cards.ps1` はClaude Code起動前に、PowerShellの `Test-Path` で `CardPath` が `cards/` 配下の実在するファイルまたはディレクトリであることを確認する。ディレクトリ指定時は、空ディレクトリでも存在していれば有効とし、その場合は登録対象カードが0件として扱う。条件を満たさない場合はClaude Codeを起動せず終了する。
 
 ### 9.10 処理シーケンス
 
@@ -1512,6 +1516,8 @@ Claude CodeのReadツールおよびVault内のファイル操作だけで判定
 - ReadツールでSourceノートを読み込めない
 
 この場合は問題カードを作成せず、問題作成タスクを終了する。
+
+最初の2条件は `create-cards.ps1` のPowerShell事前検証で判定し、該当する場合はClaude Codeを起動しない。
 
 Sourceパスまたはファイルの状態を修正した後、問題作成タスクを再実行する。
 

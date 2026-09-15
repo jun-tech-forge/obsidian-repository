@@ -38,6 +38,13 @@ Claude Codeの非対話実行には `claude -p` を使用する。本プロジ�
 - `TagPath`: `cards/` 配下の既存保存先ディレクトリ。
 - `Count`: 作成件数の上限目安。十分な知識がなければ少なくてよい。
 
+`create-cards.ps1` はClaude Code起動前に、PowerShellの `Test-Path` で次を検証する。
+
+- `Source` が `notes/` 配下の実在するMarkdownファイルであること
+- `TagPath` が `cards/` 配下の実在するディレクトリであること
+
+`TagPath` は `Test-Path -PathType Container` で確認するため、空ディレクトリでも存在していれば正常と判定する。条件を満たさない場合はClaude Codeを起動せず終了する。
+
 1つのMarkdown学習メモから複数問を作る場合も、`--output-format` を変更する必要はない。Claudeは複数のカードMarkdownファイルを作成し、標準出力JSONには生成ファイル一覧と件数を返す。
 
 新規カードは `anki_note_id: null`、`status: draft` とする。
@@ -53,6 +60,8 @@ Claude Codeの非対話実行には `claude -p` を使用する。本プロジ�
 ```
 
 登録タスクはカード本文を変更しない。Anki標準 `Basic` / `Cloze` へ新規登録し、成功したカードについてのみローカルfrontmatterの `anki_note_id` と `status` を更新する。
+
+`register-cards.ps1` はClaude Code起動前に、PowerShellの `Test-Path` で `CardPath` が `cards/` 配下の実在するファイルまたはディレクトリであることを検証する。ディレクトリは空でも、存在していれば有効な入力として扱う。条件を満たさない場合はClaude Codeを起動せず終了する。
 
 変換規則は次のとおりである。
 
