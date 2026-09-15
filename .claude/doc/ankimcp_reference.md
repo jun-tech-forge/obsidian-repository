@@ -13,8 +13,8 @@
 ### 2.1 読み取り・事前確認
 
 - `list_decks`: デッキ一覧を取得し、登録先の存在確認に使用する。
-- `model_names`: 利用可能なノートタイプを取得し、標準 `Basic` / `Cloze` の存在確認に使用する。
-- `model_field_names`: ノートタイプのフィールド名を確認する。`Basic` は `Front` / `Back`、`Cloze` は `Text` / `Back Extra` を期待する。
+- `model_names`: 利用可能なノートタイプを取得し、ローカル論理名 `Basic` / `Cloze` に対応する実ノートタイプ名を解決するために使用する。
+- `model_field_names`: 解決した実ノートタイプのフィールド名を確認する。表示言語により、`Basic` / `基本`、`Cloze` / `穴埋め問題` と、それぞれの標準フィールド名がローカライズされる。
 - `find_notes`: Anki検索構文でノートを検索する。ローカルメタデータが欠損した場合の重複調査等に使用する。
 - `notes_info`: Note IDを指定してノート詳細を取得する。更新・削除前に対象ノートの存在とノートタイプを確認する用途、および登録後の確認に使用する。
 
@@ -47,7 +47,7 @@ allow_duplicate: 既存重複を許可するか。本処理ではfalse
 
 `add_notes` は成功・スキップ・失敗の件数に加え、入力配列のindexごとの結果を返す。成功した要素は `status: created` とAnkiの `note_id` を含む。この `note_id` をローカルカードの `anki_note_id` として保存する。
 
-`allow_duplicate=false` の場合、既存コレクションに対してノートタイプの第1フィールドで重複判定する。標準Basicでは `Front`、標準Clozeでは `Text` が対象となる。ただし同一 `add_notes` バッチ内の重複はAnkiMCP側では検出しないため、Claude Code側の事前検証が必要である。
+`allow_duplicate=false` の場合、既存コレクションに対してノートタイプの第1フィールドで重複判定する。標準Basicでは `Front` または `表面`、標準Clozeでは `Text` または `テキスト` が対象となる。ただし同一 `add_notes` バッチ内の重複はAnkiMCP側では検出しないため、Claude Code側の事前検証が必要である。
 
 ### 2.3 明示的な更新時のみ使用
 
@@ -77,15 +77,24 @@ notes: 削除対象のNote IDの配列
 - `update_model_styling`
 - `change_note_type` 相当のノートタイプ変更処理
 
-本プロジェクトはAnki標準 `Basic` / `Cloze` を無変更で使用するため、ノートタイプ作成・フィールド追加・テンプレート変更を通常処理にも初期セットアップにも含めない。
+本プロジェクトは、ローカルでは論理名 `Basic` / `Cloze` を保持しつつ、Anki側では表示言語に応じた標準ノートタイプを無変更で使用するため、ノートタイプ作成・フィールド追加・テンプレート変更を通常処理にも初期セットアップにも含めない。
 
 ---
 
 ## 3. 標準ノートタイプへの登録
 
+ローカルカードの `note_type` は論理名として常に `Basic` または `Cloze` を使用する。AnkiMCPへ渡す `model_name` と `fields` のキーは、`model_names` と `model_field_names` で確認した実際の名称を使用する。
+
+対応可能な標準名称は次のとおりである。
+
+- `Basic` 系: ノートタイプ `Basic` または `基本`、フィールド `Front` / `Back` または `表面` / `裏面`
+- `Cloze` 系: ノートタイプ `Cloze` または `穴埋め問題`、フィールド `Text` / `Back Extra` または `テキスト` / `裏面補足`
+
+`基本 コピー` や `基本 (裏表反転カード付き)` のような類似名は標準ノートタイプとして扱わず、推測で選択しない。
+
 ### 3.1 Basic
 
-ローカルカードから次だけを送信する。
+英語環境では、たとえば次のように送信する。
 
 ```json
 {
@@ -106,6 +115,8 @@ notes: 削除対象のNote IDの配列
 
 ### 3.2 Cloze
 
+英語環境では、たとえば次のように送信する。
+
 ```json
 {
   "deck_name": "it",
@@ -123,6 +134,8 @@ notes: 削除対象のNote IDの配列
 }
 ```
 
+日本語環境では、同じ論理型でも `model_name` や `fields` のキーに `基本` / `表面` / `裏面`、`穴埋め問題` / `テキスト` / `裏面補足` を使用する。
+
 `id`, `anki_note_id`, `status`, `note_type`, `source` はAnkiMCPのfieldsへ渡さない。
 
 ---
@@ -139,7 +152,7 @@ Anki Note ID
 xxxxxxxxxxxxx
 ```
 
-新規登録時は `add_notes` の成功結果からNote IDを直接取得し、カードMarkdownへ保存する。以後の更新は `anki_note_id` → `notes_info` → `update_note_fields` の順で対象を確認してから実施する。削除も同様に `anki_note_id` → `notes_info` → `delete_notes` の順で対象を確認してから実施する。
+新規登録時は `add_notes` の成功結果からNote IDを直接取得し、カードMarkdownへ保存する。以後の更新は `anki_note_id` → `notes_info` → 実ノートタイプ名と実フィールド名の確認 → `update_note_fields` の順で対象を確認してから実施する。削除も同様に `anki_note_id` → `notes_info` → 実ノートタイプ名の確認 → `delete_notes` の順で対象を確認してから実施する。
 
 Front/Textだけを恒久的な識別子として使用しない。問題文は更新で変化し得るためである。
 

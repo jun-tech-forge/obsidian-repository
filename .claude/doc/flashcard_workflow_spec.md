@@ -246,7 +246,7 @@ Ankiは、暗記カードを用いた反復学習を行うためのフラッシ�
 
 本システムでは、Claude Codeによって作成された問題を最終的な学習対象として保持し、Ankiのスケジューリング機能に基づいて復習を行う。
 
-Ankiには標準ノートタイプの `Basic` と `Cloze` を使用する。問題本文、解答およびタグをAnkiへ登録し、ローカルID・Source・登録状態等のシステム運用情報はObsidian Vault側で管理する。
+Ankiには表示言語に応じた標準ノートタイプを使用する。ローカルでは論理名として `Basic` と `Cloze` を保持する。問題本文、解答およびタグをAnkiへ登録し、ローカルID・Source・登録状態等のシステム運用情報はObsidian Vault側で管理する。
 
 #### 3.1.4 AnkiMCP
 
@@ -316,17 +316,17 @@ it::web_application::frontend
 
 #### 3.2.3 Ankiへの保存情報
 
-Ankiでは、標準ノートタイプの `Basic` と `Cloze` を使用する。
+Ankiでは、表示言語に応じた標準ノートタイプを使用する。ローカルの `note_type` は論理名として `Basic` と `Cloze` だけを使用する。
 
-Basicでは、標準フィールドの次の2項目を使用する。
+Basicでは、Anki上で標準フィールドの次のいずれか2項目を使用する。
 
-- `Front`
-- `Back`
+- `Front` / `Back`
+- `表面` / `裏面`
 
-Clozeでは、標準フィールドの次の2項目を使用する。
+Clozeでは、Anki上で標準フィールドの次のいずれか2項目を使用する。
 
-- `Text`
-- `Back Extra`
+- `Text` / `Back Extra`
+- `テキスト` / `裏面補足`
 
 分野・難易度・優先度はAnkiのネイティブタグとして登録する。
 
@@ -463,15 +463,15 @@ obsidian-repository/
 7. `tags`: タグ
 8. `source`: Sourceノートのパス
 
-Basicでは `front` と `back`、Clozeでは `text` と `back_extra` を使用する。
+Basicでは `front` と `back`、Clozeでは `text` と `back_extra` を使用する。これらはローカル原本の論理項目名であり、Anki側の実フィールド名は表示言語に応じて解決する。
 
 ローカル管理項目の `id`, `anki_note_id`, `status`, `note_type`, `source` は、Anki標準ノートタイプのフィールドとして登録しない。
 
 ### 5.2 カードデータ形式
 
-問題カードは、MarkdownファイルのYAML Front Matterとして各項目を保持する。
+問題カードは、MarkdownファイルのYAML Front Matterとして各項目を保持する。ローカルの `note_type` は論理名として `Basic` / `Cloze` を保持し、Anki上の実ノートタイプ名へは登録・更新・削除時に対応付ける。
 
-Basicは一問一答形式とし、Anki登録時には `front` を標準フィールドの `Front`、`back` を標準フィールドの `Back` へ対応させる。
+Basicは一問一答形式とし、Anki登録時には `front` を標準フィールドの `Front` または `表面`、`back` を標準フィールドの `Back` または `裏面` へ対応させる。
 
 ```text
 ---
@@ -491,7 +491,7 @@ source: notes/books/example.md
 ---
 ```
 
-Clozeは、文脈を残したまま一部を穴埋めにする形式とし、Anki登録時には `text` を標準フィールドの `Text`、`back_extra` を標準フィールドの `Back Extra` へ対応させる。
+Clozeは、文脈を残したまま一部を穴埋めにする形式とし、Anki登録時には `text` を標準フィールドの `Text` または `テキスト`、`back_extra` を標準フィールドの `Back Extra` または `裏面補足` へ対応させる。
 
 ```text
 ---
@@ -601,7 +601,7 @@ Basicは、1枚の問題で1つの知識だけを問う一問一答形式とす�
 front: "HTTPのGETメソッドの主な用途は何か？"
 ```
 
-Anki登録時には、`front` をBasicの標準フィールド `Front` へ登録する。
+Anki登録時には、`front` をBasicの実フィールド名 `Front` または `表面` へ登録する。
 
 Clozeでは、前後の文脈を保持した文章を `text` に保存し、覚える対象をAnki標準のCloze記法で穴埋めにする。
 
@@ -609,7 +609,7 @@ Clozeでは、前後の文脈を保持した文章を `text` に保存し、覚�
 text: "ACTでは思考を事実そのものではなく思考として捉える過程を{{c1::脱フュージョン}}という。"
 ```
 
-Anki登録時には、`text` をClozeの標準フィールド `Text` へ登録する。
+Anki登録時には、`text` をClozeの実フィールド名 `Text` または `テキスト` へ登録する。
 
 Clozeの穴は、1つのノートにつき最大3つとする。
 
@@ -625,7 +625,7 @@ back: |-
   補足: 原則としてサーバー状態を変更しない安全な操作として扱う。
 ```
 
-Anki登録時には、`back` をBasicの標準フィールド `Back` へ登録する。
+Anki登録時には、`back` をBasicの実フィールド名 `Back` または `裏面` へ登録する。
 
 Clozeでは、穴埋め部分そのものの解答は `text` 内のCloze記法に含まれるため、`back_extra` には必要に応じて補足情報を記載する。
 
@@ -634,7 +634,7 @@ back_extra: |-
   補足: 思考の内容を消すのではなく思考との関係を変えることを重視する。
 ```
 
-Anki登録時には、`back_extra` をClozeの標準フィールド `Back Extra` へ登録する。
+Anki登録時には、`back_extra` をClozeの実フィールド名 `Back Extra` または `裏面補足` へ登録する。
 
 ### 5.9 タグ
 
@@ -897,7 +897,7 @@ sequenceDiagram
 
 ### 9.1 目的
 
-問題登録タスクは、`cards/` 配下に保存された未登録の問題カードを検証し、Anki標準のBasicまたはClozeとしてAnkiへ新規登録することを目的とする。
+問題登録タスクは、`cards/` 配下に保存された未登録の問題カードを検証し、ローカル論理型 `Basic` / `Cloze` に対応するAnki標準ノートタイプへ新規登録することを目的とする。
 
 このタスクは問題本文を更新せず、登録成功後にローカル管理項目の `anki_note_id` と `status` だけを更新する。
 
@@ -911,7 +911,7 @@ sequenceDiagram
 1. 指定された問題カードを読み込む
 2. 全対象について登録前検証を行う
 3. AnkiMCPで登録先デッキの存在を確認する
-4. AnkiMCPでBasicとClozeの存在を確認する
+4. AnkiMCPで対象カードに必要な論理型に対応する実ノートタイプ名の存在を確認する
 5. AnkiMCPで使用する標準フィールド名を確認する
 6. 未登録問題だけを登録対象として抽出する
 7. 同一処理内の問題文重複を確認する
@@ -940,9 +940,10 @@ Ankiへの書き込みを開始する前に、対象問題をすべて検証す�
 - `draft` の問題は `anki_note_id` が `null` であること
 - `registered` の問題は `anki_note_id` が存在すること
 - 登録先デッキがAnkiに存在すること
-- BasicとClozeがAnkiに存在すること
-- Basicのフィールドが `Front` と `Back` であること
-- Clozeのフィールドが `Text` と `Back Extra` であること
+- 対象カードに含まれる論理 `note_type` に対応する標準ノートタイプがAnkiに一意に存在すること
+- Basic系では、その実フィールドが `Front` / `Back` または `表面` / `裏面` であること
+- Cloze系では、その実フィールドが `Text` / `Back Extra` または `テキスト` / `裏面補足` であること
+- `Basic` / `基本`、`Cloze` / `穴埋め問題` 以外の類似名を推測で採用しないこと
 
 ### 9.5 AnkiMCP入力への変換とバッチ分割
 
@@ -950,19 +951,21 @@ Ankiへの書き込みを開始する前に、対象問題をすべて検証す�
 
 Basicでは次の対応とする。
 
-- `front` → `Front`
-- `back` → `Back`
+- 実ノートタイプ名: `Basic` または `基本`
+- `front` → `Front` または `表面`
+- `back` → `Back` または `裏面`
 - `tags` → Ankiネイティブタグ
 
 Clozeでは次の対応とする。
 
-- `text` → `Text`
-- `back_extra` → `Back Extra`
+- 実ノートタイプ名: `Cloze` または `穴埋め問題`
+- `text` → `Text` または `テキスト`
+- `back_extra` → `Back Extra` または `裏面補足`
 - `tags` → Ankiネイティブタグ
 
 `id`, `anki_note_id`, `status`, `note_type`, `source` はAnkiのフィールドへ渡さない。
 
-`add_notes` は1回の呼び出しで同じデッキと同じノートタイプを共有する問題をまとめて登録する。そのため、BasicとClozeは別のバッチに分ける。
+`add_notes` は1回の呼び出しで同じデッキと同じ実ノートタイプ名を共有する問題をまとめて登録する。そのため、Basic系とCloze系は別のバッチに分け、各バッチでは確認済みの実ノートタイプ名だけを使用する。
 
 1回の `add_notes` に含める件数は、AnkiMCPの `max_notes_per_batch` 以下とする。既定値は100件であり、100件を超える場合は100件以下の複数バッチへ分割する。
 
@@ -1075,7 +1078,7 @@ Anki登録済みの問題を修正する場合は、必要に応じて同じタ�
 
 PowerShell実行時に `-SyncAnki` スイッチを付けると、`update-cards.ps1` が `sync_anki=true` を `/update-cards` Skillへ渡す。
 
-Ankiへの同期では、問題文から対象を検索して推測せず、ローカルカード原本に保存された `anki_note_id` を使用する。`notes_info` で対象ノートを確認した後、Basicでは `Front` と `Back`、Clozeでは `Text` と `Back Extra` を更新する。タグを変更した場合は `tag_management` で差分を反映する。
+Ankiへの同期では、問題文から対象を検索して推測せず、ローカルカード原本に保存された `anki_note_id` を使用する。`notes_info` で対象ノートを確認した後、ローカル `note_type` とAnki側の実ノートタイプ名が `Basic` / `基本` または `Cloze` / `穴埋め問題` の対応関係で一致する場合だけ、実際のフィールド名に合わせて更新する。タグを変更した場合は `tag_management` で差分を反映する。
 
 同期が成功した場合は `status: registered` とする。同期に失敗した場合は `status: needs_sync` とし、Ankiとローカル原本の内容が一致していないことを明示する。
 
@@ -1236,7 +1239,7 @@ Anki・Vaultいずれの削除も開始する前に、対象カードごとに�
 3. `notes_info` が対象ノートを確認できない場合（利用者が既にAnki側で削除している場合等）は、Anki側は既に削除済みとみなし、警告を報告した上で11.6のローカル削除へ進む
 4. `delete_notes` の呼び出し自体が失敗した場合（AnkiMCP接続エラー等）は、ローカルのカードファイルを削除せずにタスクを中止する
 
-問題文やタグからノートを推測して削除してはならない。削除対象は必ず `anki_note_id` で一意に特定する。
+問題文やタグからノートを推測して削除してはならない。削除対象は必ず `anki_note_id` で一意に特定する。ローカル `note_type` とAnki側の実ノートタイプ名の対応は `Basic` / `基本`、`Cloze` / `穴埋め問題` のみを許可し、類似名は一致扱いしない。
 
 ### 11.6 ローカル側の削除
 

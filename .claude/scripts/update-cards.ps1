@@ -34,7 +34,7 @@ $SystemPrompt = @"
 `id` および `anki_note_id` は変更しない。Anki登録済みの問題カードでは `note_type` を変更しない。
 Ankiノートの新規追加または削除を行わない。
 `sync_anki=false` の場合は、ローカル問題カードだけを更新し、AnkiMCPを使用しない。対象が `status: registered` の場合は、ローカル原本とAnkiの内容に差分が生じるため、更新後の `status` を `needs_sync` とする。対象が `status: draft` の場合は、`status: draft` を維持する。
-`sync_anki=true` の場合は、ローカル問題カードに保存された `anki_note_id` だけを使用してAnki側の対象ノートを特定する。AnkiMCPの `notes_info` で対象ノートを確認した後、利用者が明示的に変更した内容に対応するBasicまたはClozeの標準フィールドだけを更新する。タグが明示的に変更された場合だけ、Anki側のタグにも変更内容を反映する。
+`sync_anki=true` の場合は、ローカル問題カードに保存された `anki_note_id` だけを使用してAnki側の対象ノートを特定する。AnkiMCPの `notes_info` で対象ノートの実ノートタイプ名と実フィールド名を確認した後、利用者が明示的に変更した内容に対応するBasicまたはClozeの標準フィールドだけを更新する。タグが明示的に変更された場合だけ、Anki側のタグにも変更内容を反映する。
 Ankiへの同期が成功した場合は `status` を `registered` とする。同期に失敗した場合は、ローカルで行った変更を元に戻さず、`status` を `needs_sync` とする。
 指定された対象以外の問題カードやAnkiノートを変更してはならない。
 処理完了後は、更新対象、ローカルで変更した項目、Anki同期の実施有無、同期結果、更新後の `status` を簡潔に返す。
