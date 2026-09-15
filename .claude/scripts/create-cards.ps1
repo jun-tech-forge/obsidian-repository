@@ -65,7 +65,7 @@ Path-specific rulesを適用するため、指定されたSourceノートはClau
 "@
 
 $ClaudeOutput = & claude -p $Prompt `
-    --output-format json `
+    --output-format text `
     --system-prompt $SystemPrompt `
     --permission-mode dontAsk `
     --effort high `
@@ -74,23 +74,12 @@ $ClaudeOutput = & claude -p $Prompt `
     --disallowedTools "Edit" "Bash" "mcp__*"
 
 $ClaudeExitCode = $LASTEXITCODE
-$ClaudeOutputText = if ($null -eq $ClaudeOutput) { "" } else { ($ClaudeOutput | Out-String).TrimEnd() }
-
-try {
-    $Result = $ClaudeOutputText | ConvertFrom-Json
-}
-catch {
-    Write-Error "Failed to parse Claude Code JSON output."
-    if ($ClaudeOutputText -ne "") {
-        Write-Host $ClaudeOutputText
-    }
-    exit 1
+if ($ClaudeExitCode -ne 0) {
+    exit $ClaudeExitCode
 }
 
-if ($Result.is_error) {
-    Write-Error $Result.result
-    exit 1
+if ($null -ne $ClaudeOutput) {
+    Write-Output $ClaudeOutput
 }
 
-Write-Host $Result.result
 exit $ClaudeExitCode

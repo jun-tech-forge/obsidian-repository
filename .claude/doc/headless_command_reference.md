@@ -4,7 +4,7 @@
 
 Claude Codeの非対話実行には `claude -p` を使用する。本プロジェクトでは各タスクで `--output-format` と `--system-prompt` を明示する。
 
-`--output-format` はカードファイルの形式を指定するものではなく、Claude Codeが標準出力へ返す応答形式を指定する。本処理ではログ解析と自動処理に適する `json` を標準とする。
+`--output-format` はカードファイルの形式を指定するものではなく、Claude Codeが標準出力へ返す応答形式を指定する。本処理では利用者向けの最終結果だけを簡潔に表示するため `text` を使用する。
 
 `--system-prompt` はClaude Codeの既定system prompt全体を置換する。本要件ではこのフラグを必須とするため、各スクリプト内のsystem promptにタスク境界、安全条件、プロジェクト指示参照を明示する。
 
@@ -13,7 +13,7 @@ Claude Codeの非対話実行には `claude -p` を使用する。本プロジ�
 ## 2. 共通フラグ
 
 - `-p`: 非対話で1タスクを実行し、終了する。
-- `--output-format json`: 実行結果をJSONで返す。
+- `--output-format text`: 実行結果をテキストで返す。
 - `--system-prompt`: タスク固有の実行責務と禁止事項を指定する。
 - `--permission-mode dontAsk`: 許可されていないToolを対話確認せず拒否する。
 - `--tools`: 利用可能な組み込みToolをタスクごとに絞る。
@@ -45,7 +45,7 @@ Claude Codeの非対話実行には `claude -p` を使用する。本プロジ�
 
 `TagPath` は `Test-Path -PathType Container` で確認するため、空ディレクトリでも存在していれば正常と判定する。条件を満たさない場合はClaude Codeを起動せず終了する。
 
-1つのMarkdown学習メモから複数問を作る場合も、`--output-format` を変更する必要はない。Claudeは複数のカードMarkdownファイルを作成し、標準出力JSONには生成ファイル一覧と件数を返す。
+1つのMarkdown学習メモから複数問を作る場合も、`--output-format` を変更する必要はない。Claudeは複数のカードMarkdownファイルを作成し、標準出力には利用者向けの実行結果テキストを返す。
 
 新規カードは `anki_note_id: null`、`status: draft` とする。
 

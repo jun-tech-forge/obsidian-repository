@@ -34,7 +34,7 @@ Ankiノートの追加・更新を行わない。`note_type` を変更しない�
 "@
 
 $ClaudeOutput = & claude -p $Prompt `
-    --output-format json `
+    --output-format text `
     --system-prompt $SystemPrompt `
     --permission-mode dontAsk `
     --effort high `
@@ -46,23 +46,12 @@ $ClaudeOutput = & claude -p $Prompt `
         "mcp__anki__model_fields" "mcp__anki__create_model" "mcp__anki__update_model_templates" "mcp__anki__update_model_styling"
 
 $ClaudeExitCode = $LASTEXITCODE
-$ClaudeOutputText = if ($null -eq $ClaudeOutput) { "" } else { ($ClaudeOutput | Out-String).TrimEnd() }
-
-try {
-    $Result = $ClaudeOutputText | ConvertFrom-Json
-}
-catch {
-    Write-Error "Failed to parse Claude Code JSON output."
-    if ($ClaudeOutputText -ne "") {
-        Write-Host $ClaudeOutputText
-    }
-    exit 1
+if ($ClaudeExitCode -ne 0) {
+    exit $ClaudeExitCode
 }
 
-if ($Result.is_error) {
-    Write-Error $Result.result
-    exit 1
+if ($null -ne $ClaudeOutput) {
+    Write-Output $ClaudeOutput
 }
 
-Write-Host $Result.result
 exit $ClaudeExitCode
