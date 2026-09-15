@@ -77,7 +77,7 @@ Cloze:
   note_type=Cloze
   model_name → Anki Cloze または 穴埋め問題
   text       → Anki Text または テキスト
-  back_extra → Anki Back Extra または 裏面補足
+  back_extra → Anki Back Extra または 裏面追記
   tags       → Anki native tags
 
 ローカルのみ:

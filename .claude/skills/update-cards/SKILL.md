@@ -119,7 +119,7 @@ Basicでは、変更対象に応じて次の標準フィールドだけを同期
 Clozeでは、変更対象に応じて次の標準フィールドだけを同期する。
 
 - `text` → `Text` または `テキスト`
-- `back_extra` → `Back Extra` または `裏面補足`
+- `back_extra` → `Back Extra` または `裏面追記`
 
 フィールドの同期には `update_note_fields` または `update_notes` を使用する。
 
