@@ -59,7 +59,7 @@ Claude Codeの非対話実行には `claude -p` を使用する。本プロジ�
   -Deck "it"
 ```
 
-登録タスクはカード本文を変更しない。Anki標準 `Basic` / `Cloze` へ新規登録し、成功したカードについてのみローカルfrontmatterの `anki_note_id` と `status` を更新する。
+登録タスクはカード本文を変更しない。ローカル論理型 `Basic` / `Cloze` に対応するAnki標準ノートタイプへ新規登録し、成功したカードについてのみローカルfrontmatterの `anki_note_id` と `status` を更新する。
 
 `register-cards.ps1` はClaude Code起動前に、PowerShellの `Test-Path` で `CardPath` が `cards/` 配下の実在するファイルまたはディレクトリであることを検証する。ディレクトリは空でも、存在していれば有効な入力として扱う。条件を満たさない場合はClaude Codeを起動せず終了する。
 
@@ -68,14 +68,16 @@ Claude Codeの非対話実行には `claude -p` を使用する。本プロジ�
 ```text
 Basic:
   note_type=Basic
-  front      → Anki Front
-  back       → Anki Back
+  model_name → Anki Basic または 基本
+  front      → Anki Front または 表面
+  back       → Anki Back または 裏面
   tags       → Anki native tags
 
 Cloze:
   note_type=Cloze
-  text       → Anki Text
-  back_extra → Anki Back Extra
+  model_name → Anki Cloze または 穴埋め問題
+  text       → Anki Text または テキスト
+  back_extra → Anki Back Extra または 裏面補足
   tags       → Anki native tags
 
 ローカルのみ:
@@ -84,6 +86,8 @@ Cloze:
   status
   source
 ```
+
+実際に使用するノートタイプ名とフィールド名は、`model_names` と `model_field_names` で確認した値に限る。`基本 コピー` や `基本 (裏表反転カード付き)` のような類似名は推測で使用しない。
 
 ---
 
@@ -122,7 +126,7 @@ Ankiにも明示同期する場合は、識別子の種類によらず `-SyncAnk
   -SyncAnki
 ```
 
-`-SyncAnki` を使用する場合、対象カードに `anki_note_id` が保存されていることが必須である。Note IDを `notes_info` で確認してから標準フィールドを更新し、同期成功後に `status: registered` とする。
+`-SyncAnki` を使用する場合、対象カードに `anki_note_id` が保存されていることが必須である。Note IDを `notes_info` で確認し、ローカル論理型に対応する実ノートタイプ名と実フィールド名を特定してから標準フィールドを更新し、同期成功後に `status: registered` とする。
 
 `id`、`anki_note_id`、`note_type` の変更、およびノート削除は更新タスクでは行わない。
 

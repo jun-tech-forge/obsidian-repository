@@ -96,21 +96,30 @@ argument-hint: "(path=<cards/...md> | id=<local-id> | anki_note_id=<note-id>) in
 - `anki_note_id` が存在しない場合はAnki同期を行わない
 - 問題文・解答・タグ等からAnki Note IDを推測しない
 - `notes_info` に保存済みの `anki_note_id` を渡して対象ノートを確認する
-- Anki側の対象ノートがローカルカードの `note_type` と一致することを確認する
+- Anki側の対象ノートがローカルカードの論理 `note_type` と対応関係の上で一致することを確認する
 
 対象ノートを確認できない場合はAnkiへの更新を行わず、`status: needs_sync` として報告する。
 
+論理型と実ノートタイプ名の対応は次のとおりとする。
+
+- ローカル `Basic` ↔ Anki `Basic` または `基本`
+- ローカル `Cloze` ↔ Anki `Cloze` または `穴埋め問題`
+
+類似名のノートタイプを推測で一致扱いしない。たとえば `基本 コピー`、`基本 (裏表反転カード付き)` などは一致として扱わない。
+
 ### Field synchronization
+
+`notes_info` で確認できる実際のフィールド名に合わせて同期する。想定外のフィールド構成の場合は推測せず同期を中止する。
 
 Basicでは、変更対象に応じて次の標準フィールドだけを同期する。
 
-- `front` → `Front`
-- `back` → `Back`
+- `front` → `Front` または `表面`
+- `back` → `Back` または `裏面`
 
 Clozeでは、変更対象に応じて次の標準フィールドだけを同期する。
 
-- `text` → `Text`
-- `back_extra` → `Back Extra`
+- `text` → `Text` または `テキスト`
+- `back_extra` → `Back Extra` または `裏面補足`
 
 フィールドの同期には `update_note_fields` または `update_notes` を使用する。
 

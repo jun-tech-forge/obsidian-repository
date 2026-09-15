@@ -52,21 +52,34 @@ PowerShellスクリプト側で、`path` が `cards/` 配下の実在するフ�
 AnkiMCPを使用して、次の条件を確認する。
 
 - `list_decks` で `deck` が存在する
-- `model_names` で対象カードに必要な `Basic` または `Cloze` が存在する
-- `model_field_names` でBasicのフィールドが `Front` と `Back` である
-- `model_field_names` でClozeのフィールドが `Text` と `Back Extra` である
+- `model_names` で、対象カードに含まれる論理 `note_type` ごとに対応する実ノートタイプ名を解決できる
+- `model_field_names` で、解決した実ノートタイプのフィールド構成が想定どおりである
 
 期待するデッキ・ノートタイプ・フィールド構成が存在しない場合は、自動作成または自動変更せず終了する。
+
+論理型と実ノートタイプ名の対応は次のとおりとする。
+
+- `Basic` → `Basic` または `基本`
+- `Cloze` → `Cloze` または `穴埋め問題`
+
+フィールド構成の対応は次のとおりとする。
+
+- `Basic`: `Front` / `Back` または `表面` / `裏面`
+- `Cloze`: `Text` / `Back Extra` または `テキスト` / `裏面補足`
+
+類似名のノートタイプやフィールド名を推測で使用しない。たとえば `基本 コピー`、`基本 (裏表反転カード付き)` などは一致として扱わない。
+
+対象カードに存在しない論理型については、Anki側の存在確認やフィールド確認を必須としない。
 
 ## Workflow
 
 1. `path` から対象の問題カードを列挙してReadする
 2. 全対象についてローカル構造検証を行う
-3. AnkiMCPで登録先デッキ・ノートタイプ・フィールド構成を確認する
+3. AnkiMCPで登録先デッキ・対象カードに必要な実ノートタイプ名・フィールド構成を確認する
 4. 登録済みの問題カードを処理対象から除外する
 5. 登録対象内の問題文重複を確認する
 6. 未登録の問題カードをAnkiMCP入力形式へ変換する
-7. 登録対象を `deck` と `note_type` ごとにグループ化してバッチ分割する
+7. 登録対象を `deck` と論理 `note_type` ごとにグループ化し、各グループに対応する実ノートタイプ名と実フィールド名を確定する
 8. `add_notes` で各バッチをAnkiへ登録する
 9. 各登録結果を入力問題カードと対応付ける
 10. 登録成功した問題カードの `anki_note_id` と `status` を更新する
@@ -83,16 +96,20 @@ AnkiMCPを使用して、次の条件を確認する。
 
 ### Field mapping
 
+ローカルの `note_type` は論理名として `Basic` / `Cloze` だけを使用し、AnkiMCPとの境界で実ノートタイプ名と実フィールド名へ変換する。
+
 Basicは次のように変換する。
 
-- `front` → `Front`
-- `back` → `Back`
+- 実ノートタイプ名は `Basic` または `基本`
+- `front` → `Front` または `表面`
+- `back` → `Back` または `裏面`
 - `tags` → Ankiネイティブタグ
 
 Clozeは次のように変換する。
 
-- `text` → `Text`
-- `back_extra` → `Back Extra`
+- 実ノートタイプ名は `Cloze` または `穴埋め問題`
+- `text` → `Text` または `テキスト`
+- `back_extra` → `Back Extra` または `裏面補足`
 - `tags` → Ankiネイティブタグ
 
 次のローカル管理情報はAnkiのfieldsへ渡さない。
@@ -106,12 +123,14 @@ Clozeは次のように変換する。
 ### Batch registration
 
 - BasicとClozeを同一の `add_notes` 呼び出しへ混在させない
+- 各バッチの `model_name` には、`model_names` で確認済みの実ノートタイプ名だけを使用する
 - 1バッチはAnkiMCPの `max_notes_per_batch` 以下とする
 - 既定の上限は100件として扱う
 - 100件を超える場合は複数バッチへ分割する
 - 件数にかかわらず `add_notes` を使用する
 - 1件の場合も1要素のバッチとして登録する
 - `allow_duplicate` は必ず `false` とする
+- 実ノートタイプ名または実フィールド名を一意に決められない場合は登録を中止する
 
 ### Registration result
 

@@ -4,7 +4,7 @@
 
 カード原本は `cards/` 配下に1カード1Markdownファイルで保存する。
 
-Anki側では独自ノートタイプを作成せず、Anki標準の `Basic` と `Cloze` をそのまま利用する。標準ノートタイプへID等の独自フィールドも追加しない。
+Anki側では独自ノートタイプを作成せず、Anki標準のノートタイプをそのまま利用する。ローカルカード原本の `note_type` には論理名として `Basic` と `Cloze` だけを使用し、Anki上の実際の標準ノートタイプ名・フィールド名は表示言語に応じて解決する。標準ノートタイプへID等の独自フィールドも追加しない。
 
 ローカルカード原本には、カード本文に加えてClaude Code側の管理情報を保持する。Anki登録時には必要な本文とタグだけをAnkiへ送信し、管理情報はVault内に留める。
 
@@ -30,7 +30,7 @@ source: notes/books/example.md
 ---
 ```
 
-Anki登録時は次のように変換する。
+Anki登録時は、英語環境では次のように変換する。
 
 ```json
 {
@@ -72,7 +72,7 @@ source: notes/books/example.md
 ---
 ```
 
-Anki登録時は次のように変換する。
+Anki登録時は、英語環境では次のように変換する。
 
 ```json
 {
@@ -124,7 +124,8 @@ Anki登録時は次のように変換する。
 ### 4.4 note_type
 
 - `Basic` または `Cloze` のみを許可する。
-- Anki登録時に `model_name` へ変換する管理情報であり、Ankiの独自フィールドとしては保存しない。
+- Anki登録時に実際の `model_name` へ変換する管理情報であり、Ankiの独自フィールドとしては保存しない。
+- `Basic` はAnki上の `Basic` または `基本`、`Cloze` はAnki上の `Cloze` または `穴埋め問題` に対応する。
 - 登録済みカードの `note_type` は通常の更新タスクでは変更しない。
 
 ### 4.5 source
@@ -143,7 +144,7 @@ Basicで使用する。
 
 - `front` は問いを一意に解釈できる形にする。
 - `back` の主要解答は80字以内を目安とし、補足は1～2行とする。
-- Anki登録時に `front` → `Front`、`back` → `Back` へ変換する。
+- Anki登録時に `front` → `Front` または `表面`、`back` → `Back` または `裏面` へ変換する。
 
 ### 5.2 text / back_extra
 
@@ -151,7 +152,7 @@ Clozeで使用する。
 
 - `text` は文脈自体に学習価値がある場合に用いる。
 - `back_extra` は補足説明に用いる。
-- Anki登録時に `text` → `Text`、`back_extra` → `Back Extra` へ変換する。
+- Anki登録時に `text` → `Text` または `テキスト`、`back_extra` → `Back Extra` または `裏面補足` へ変換する。
 
 ---
 
@@ -191,4 +192,4 @@ Clozeで使用する。
 - Clozeでは `text` と `back_extra` が存在し、少なくとも1個、最大3個のCloze削除がある。
 - 同一登録バッチ内でBasicの `front` またはClozeの `text` が重複しない。
 - 文字数目安を超えた場合は警告し、著しく長い場合は登録を中止する。
-- Ankiの `Basic` が `Front` / `Back`、`Cloze` が `Text` / `Back Extra` の期待フィールド構成であることを `model_field_names` で確認する。
+- 対象カードに必要な論理 `note_type` について、対応する標準ノートタイプがAnki上に存在し、その実フィールド構成が `Front` / `Back`、`表面` / `裏面`、`Text` / `Back Extra`、`テキスト` / `裏面補足` のいずれかの想定どおりであることを `model_names` と `model_field_names` で確認する。類似名は一致扱いしない。
